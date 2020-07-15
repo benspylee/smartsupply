@@ -61,9 +61,9 @@ public class ItemDao extends NamedParameterJdbcDaoSupport {
     private String getProdCat(Items item) {
         String stage=null;
         if(item.getProdcat()==1){
-            stage ="VEG"+"0000"+ item.getItemcode();
-        }else if(item.getProdcat()==1){
             stage ="GROW"+"0000"+ item.getItemcode();
+        }else if(item.getProdcat()==2){
+            stage ="VEG"+"0000"+ item.getItemcode();
         }
         return stage;
     }
@@ -87,7 +87,7 @@ public class ItemDao extends NamedParameterJdbcDaoSupport {
     public Items deleteItem(int itemid){
         Map<String,Object> map = new HashMap<>(1);
         map.put("itemid",itemid);
-        String sql="DELETE FROM FROM VSV58378.ITEM_INFO where ITEMCODE= :itemid";
+        String sql="DELETE FROM VSV58378.ITEM_INFO where ITEMCODE= :itemid";
         int update = namedParameterJdbcTemplate.update(sql,map);
         return update==0?null:ITEM;
     }

@@ -15,27 +15,27 @@ public class ItemController  {
     ItemService itemService;
 
     @RequestMapping(value = "items",method = RequestMethod.GET)
-    public List<Items> getAllItems(){
+    public List<Items> getAllItems() throws Exception{
         return itemService.getAllItems();
     }
 
     @RequestMapping(value = "items/{itemid}",method = RequestMethod.GET)
-    public Items getItemById(@PathVariable("itemid")int itemid){
+    public Items getItemById(@PathVariable("itemid")int itemid)  throws Exception{
         return itemService.getItemById(itemid);
     }
 
     @RequestMapping(value = "items",method = RequestMethod.POST)
-    public Items addItem(@RequestBody Items item){
+    public Items addItem(@RequestBody Items item)  throws Exception{
         return itemService.addItem(item);
     }
 
     @RequestMapping(value = "items",method = RequestMethod.PUT)
-    public Items updateItem(@RequestBody Items item){
+    public Items updateItem(@RequestBody Items item)  throws Exception{
         return itemService.updateItem(item);
     }
 
     @RequestMapping(value = "items/{itemcode}",method = RequestMethod.DELETE)
-    public Items deleteItem(@PathVariable("itemid")int itemid){
+    public Items deleteItem(@PathVariable("itemcode")int itemid)  throws Exception{
         return itemService.deleteItem(itemid);
     }
 

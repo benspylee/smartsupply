@@ -5,6 +5,7 @@ import com.bluebee.smartsupply.model.Items;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
@@ -36,19 +37,19 @@ public class ItemDao extends NamedParameterJdbcDaoSupport {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public List<Items> getAllItems(){
-       return namedParameterJdbcTemplate.query("SELECT ITEMNAME,ITEMDESC,ITEMID,PRODCAT,ITEMCODE FROM VSV58378.ITEM_INFO", new BeanPropertyRowMapper(Items.class));
+       return namedParameterJdbcTemplate.query("SELECT a.ITEMNAME,a.ITEMDESC,a.ITEMID,a.PRODCAT,a.ITEMCODE,b.ITEM_CAT_NAME as PRODCATDESC,a.ImageID,a.URL FROM VSV58378.ITEM_INFO a,\"VSV58378\".\"ITEM_CATEGORY\" b where a.PRODCAT=b.ITEM_CAT_CD", new BeanPropertyRowMapper(Items.class));
     }
 
     public Items getItemById(int itemid){
         Map<String,Object> map = new HashMap<>(1);
         map.put("itemid",itemid);
-        String sql="SELECT ITEMNAME,ITEMDESC,ITEMID,PRODCAT,ITEMCODE FROM VSV58378.ITEM_INFO where ITEMCODE= :itemid";
+        String sql="SELECT a.ITEMNAME,a.ITEMDESC,a.ITEMID,a.PRODCAT,a.ITEMCODE,b.ITEM_CAT_NAME as PRODCATDESC,a.ImageID,a.URL FROM VSV58378.ITEM_INFO a,\"VSV58378\".\"ITEM_CATEGORY\" b where a.PRODCAT=b.ITEM_CAT_CD and a.ITEMCODE= :itemid";
         return (Items) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(Items.class));
     }
 
     public Items addItem(Items item){
-        String sql="insert into VSV58378.ITEM_INFO (ITEMNAME,ITEMDESC,ITEMID,PRODCAT,ITEMCODE) " +
-                "values(:itemname,:itemdesc,:itemId,:prodcat,:itemcode)";
+        String sql="insert into VSV58378.ITEM_INFO (ITEMNAME,ITEMDESC,ITEMID,PRODCAT,ITEMCODE,IMAGEID,URL) " +
+                "values(:itemname,:itemdesc,:itemId,:prodcat,:itemcode,:imageid,:url)";
         item.setItemcode(getSequence()+1);
         String stage=null;
         stage = getProdCat(item);
@@ -70,7 +71,14 @@ public class ItemDao extends NamedParameterJdbcDaoSupport {
 
     private int getSequence(){
         String sql="SELECT max(ITEMCODE)+1 FROM VSV58378.ITEM_INFO";
-        return namedParameterJdbcTemplate.queryForObject(sql,new HashMap(),Integer.class);
+        Integer seq= null;
+        try {
+            seq = namedParameterJdbcTemplate.queryForObject(sql,new HashMap(),Integer.class);
+            ;
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
+        return seq==null?0:seq;
     }
 
     public Items updateItem(Items item){
@@ -78,7 +86,7 @@ public class ItemDao extends NamedParameterJdbcDaoSupport {
         stage = getProdCat(item);
         item.setItemId(stage);
         //:itemname,:itemdesc,:itemId,:prodcat,:itemcode
-        String sql="UPDATE  VSV58378.ITEM_INFO set ITEMNAME=:itemname,ITEMDESC=:itemdesc,ITEMID=:itemId,PRODCAT=:prodcat where ITEMCODE = :itemcode";
+        String sql="UPDATE  VSV58378.ITEM_INFO set ITEMNAME=:itemname,ITEMDESC=:itemdesc,ITEMID=:itemId,PRODCAT=:prodcat,IMAGEID=:imageid,URL=:url where ITEMCODE = :itemcode";
         SqlParameterSource sqlpara=new BeanPropertySqlParameterSource(item);
         namedParameterJdbcTemplate.update(sql,sqlpara);
         return (Items) getItemById(item.getItemcode());

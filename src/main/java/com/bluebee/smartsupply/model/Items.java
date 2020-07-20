@@ -12,6 +12,17 @@ public class Items implements Serializable {
     private String url;
     private int imageid;
     private int itemcode;
+    private double price;
+    private Integer unitcode;
+    private Integer appusercd;
+
+    public Integer getAppusercd() {
+        return appusercd;
+    }
+
+    public void setAppusercd(Integer appusercd) {
+        this.appusercd = appusercd;
+    }
 
     public int getItemcode() {
         return itemcode;
@@ -76,5 +87,19 @@ public class Items implements Serializable {
     public void setProdcat(int prodcat) {
         this.prodcat = prodcat;
     }
+
+    public double getPrice(){
+        return this.price;
+    }
+    public void setPrice(double price){
+        this.price=price;
+    }
+    public Integer getUnitcode(){
+        return this.unitcode;
+    }
+    public void setUnitcode(Integer unitcode){
+        this.unitcode=unitcode;
+    }
+
 
 }

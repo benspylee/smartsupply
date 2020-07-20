@@ -38,7 +38,10 @@ public class ItemController  {
     public Items deleteItem(@PathVariable("itemcode")int itemid)  throws Exception{
         return itemService.deleteItem(itemid);
     }
-
+    @RequestMapping(value = "items/template",method = RequestMethod.GET)
+    public Items templateItem()  throws Exception{
+        return new Items();
+    }
 
 
 }

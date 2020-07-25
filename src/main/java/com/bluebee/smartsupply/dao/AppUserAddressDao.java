@@ -48,6 +48,14 @@ public class AppUserAddressDao extends NamedParameterJdbcDaoSupport {
         return (AppUserAddress) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(AppUserAddress.class));
     }
 
+    public List<AppUserAddress> getAddressByUserId(int appusercode) throws Exception{
+        Map<String,Object> map = new HashMap<>(1);
+        map.put("appusercd",appusercode);
+        String sql="SELECT ADDRESS_3  address3 ,STATUS  status ,IS_PRIMARY  isprimary ,ADDESS_1  addess1 ,ZIPCODE  zipcode ,APP_USER_CD  appusercd ,APP_USER_ADDR_CD  appuseraddrcd ,ADDRESS_2  address2  FROM VSV58378.APP_USER_ADDRESS  WHERE STATUS =  1 and APP_USER_CD = :appusercd";
+        return namedParameterJdbcTemplate.query(sql, map,new BeanPropertyRowMapper(AppUserAddress.class));
+
+    }
+
     public AppUserAddress addAppUserAddress(AppUserAddress appuseraddress){
         String sql="INSERT INTO VSV58378.APP_USER_ADDRESS(ADDESS_1,ADDRESS_2,ADDRESS_3,APP_USER_ADDR_CD,APP_USER_CD,IS_PRIMARY,STATUS,ZIPCODE) values(:addess1,:address2,:address3,:appuseraddrcd,:appusercd,:isprimary,:status,:zipcode)";
         appuseraddress.setAppuseraddrcd(getSequence()+1);

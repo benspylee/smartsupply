@@ -34,6 +34,16 @@ public class ItemService extends CommonService{
         }
     }
 
+    public  List<Items> getItemByUserId(int appuserid) throws Exception{
+        try {
+            return  itemDao.getItemByUserId(appuserid);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new Exception(e);
+        }
+    }
+
+
     public Items addItem(Items item) throws Exception{
         try {
             return  itemDao.addItem(item);

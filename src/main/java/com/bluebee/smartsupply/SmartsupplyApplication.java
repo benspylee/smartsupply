@@ -15,8 +15,7 @@ import javax.sql.DataSource;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude={
-		DataSourceAutoConfiguration.class,
-		DataSourceTransactionManagerAutoConfiguration.class
+		DataSourceAutoConfiguration.class
 })
 public class SmartsupplyApplication {
 

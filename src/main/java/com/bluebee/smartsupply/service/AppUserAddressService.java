@@ -34,6 +34,15 @@ public class AppUserAddressService extends CommonService{
         }
     }
 
+    public List<AppUserAddress> getAddressByUserId(int appusercode) throws Exception{
+        try {
+            return  appuseraddressDao.getAddressByUserId(appusercode);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new Exception(e);
+        }
+    }
+
     public AppUserAddress addAppUserAddress(AppUserAddress appuseraddress) throws Exception{
         try {
             return  appuseraddressDao.addAppUserAddress(appuseraddress);

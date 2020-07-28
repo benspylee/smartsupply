@@ -11,8 +11,136 @@ public class Order implements Serializable {
     private Integer shopcd;
     private Timestamp orderdt;
     private Integer status;
-     
-     public Integer getOrderid(){ 
+
+    private String totOrderPrice;
+    private Integer orderItmcnt;
+    private String orderStatDesc;
+    private String customerName;
+    private String deliveryAddress;
+    private String shopAddress;
+    private String shopName;
+
+    private Integer taskId;
+    private Integer driverUserid;
+    private Integer openTask;
+    private Integer acceptstatcd;
+    private Timestamp pickupts;
+    private Integer deliverytype;
+    private String driverDetails;
+
+    public Timestamp getPickupts() {
+        return pickupts;
+    }
+
+    public void setPickupts(Timestamp pickupts) {
+        this.pickupts = pickupts;
+    }
+
+    public Integer getDeliverytype() {
+        return deliverytype;
+    }
+
+    public void setDeliverytype(Integer deliverytype) {
+        this.deliverytype = deliverytype;
+    }
+
+    public String getDriverDetails() {
+        return driverDetails;
+    }
+
+    public void setDriverDetails(String driverDetails) {
+        this.driverDetails = driverDetails;
+    }
+
+    public Integer getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
+    }
+
+    public Integer getDriverUserid() {
+        return driverUserid;
+    }
+
+    public void setDriverUserid(Integer driverUserid) {
+        this.driverUserid = driverUserid;
+    }
+
+    public Integer getOpenTask() {
+        return openTask;
+    }
+
+    public void setOpenTask(Integer openTask) {
+        this.openTask = openTask;
+    }
+
+    public Integer getAcceptstatcd() {
+        return acceptstatcd;
+    }
+
+    public void setAcceptstatcd(Integer acceptstatcd) {
+        this.acceptstatcd = acceptstatcd;
+    }
+
+    public String getTotOrderPrice() {
+        return totOrderPrice;
+    }
+
+    public void setTotOrderPrice(String totOrderPrice) {
+        this.totOrderPrice = totOrderPrice;
+    }
+
+    public Integer getOrderItmcnt() {
+        return orderItmcnt;
+    }
+
+    public void setOrderItmcnt(Integer orderItmcnt) {
+        this.orderItmcnt = orderItmcnt;
+    }
+
+    public String getOrderStatDesc() {
+        return orderStatDesc;
+    }
+
+    public void setOrderStatDesc(String orderStatDesc) {
+        this.orderStatDesc = orderStatDesc;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
+
+    public String getShopAddress() {
+        return shopAddress;
+    }
+
+    public void setShopAddress(String shopAddress) {
+        this.shopAddress = shopAddress;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
+    }
+
+    public Integer getOrderid(){
     return this.orderid;
     }
     public void setOrderid(Integer orderid){ 

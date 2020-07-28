@@ -23,6 +23,10 @@ public class OrderItemController  {
     public OrderItem getOrderItemById(@PathVariable("orderitemid")int orderitemid)  throws Exception{
         return orderitemService.getOrderItemById(orderitemid);
     }
+    @RequestMapping(value = "orderitem/order/{orderid}",method = RequestMethod.GET)
+    public List<OrderItem> getOrderItemByOrderId(@PathVariable("orderid")int orderid)  throws Exception{
+        return orderitemService.getOrderItemByOrderId(orderid);
+    }
 
     @RequestMapping(value = "orderitem",method = RequestMethod.POST)
     public OrderItem addOrderItem(@RequestBody OrderItem orderitem)  throws Exception{

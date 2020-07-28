@@ -44,9 +44,19 @@ public class OrderItemDao extends NamedParameterJdbcDaoSupport {
     public OrderItem getOrderItemById(int orderitemid){
         Map<String,Object> map = new HashMap<>(1);
         map.put("orderitemid",orderitemid);
-        String sql="SELECT STATUS  status ,ORDER_ID  orderid ,QNTY  qnty ,ITEMCD  itemcd ,UNITCODE  unitcode ,ORDER_ITEM_ID  orderitemid  FROM VSV58378.ORDER_ITEM  WHERE ORDER_ITEM_ID = :orderitemid ";
+        String sql="SELECT a.STATUS  status ,a.ORDER_ID  orderid ,a.QNTY  qnty ,a.ITEMCD  itemcd ,a.UNITCODE  unitcode ,a.ORDER_ITEM_ID  orderitemid ,b.ITEMNAME,b.price " +
+                " FROM VSV58378.ORDER_ITEM a ,VSV58378.ITEM_INFO b where a.ITEMCD = b.ITEMCODE and a.ORDER_ITEM_ID = :orderitemid ";
         return (OrderItem) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(OrderItem.class));
     }
+
+    public   List<OrderItem> getOrderItemByOrderId(int orderid){
+        Map<String,Object> map = new HashMap<>(1);
+        map.put("orderid",orderid);
+        String sql="SELECT a.STATUS  status ,a.ORDER_ID  orderid ,a.QNTY  qnty ,a.ITEMCD  itemcd ,a.UNITCODE  unitcode ,a.ORDER_ITEM_ID  orderitemid ,b.ITEMNAME,b.price " +
+                "FROM VSV58378.ORDER_ITEM a ,VSV58378.ITEM_INFO b where a.ITEMCD = b.ITEMCODE and a.ORDER_ID=:orderid  ";
+        return (  List<OrderItem>) namedParameterJdbcTemplate.query(sql,map,new BeanPropertyRowMapper(OrderItem.class));
+    }
+
 
     public OrderItem addOrderItem(OrderItem orderitem){
         String sql="INSERT INTO VSV58378.ORDER_ITEM(ITEMCD,ORDER_ID,ORDER_ITEM_ID,QNTY,STATUS,UNITCODE) values(:itemcd,:orderid,:orderitemid,:qnty,:status,:unitcode)";

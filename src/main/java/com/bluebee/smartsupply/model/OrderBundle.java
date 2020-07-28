@@ -10,6 +10,15 @@ public class OrderBundle implements Serializable {
     private ArrayList<OrderItem> orderItems;
     private OrderPayment orderPayment ;
     private  OrderDelivery orderDelivery;
+    private OrderStatus orderStatus;
+
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 
     public AppUser getAppUser() {
         return appUser;

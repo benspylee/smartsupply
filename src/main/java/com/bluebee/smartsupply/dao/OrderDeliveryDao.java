@@ -48,6 +48,13 @@ public class OrderDeliveryDao extends NamedParameterJdbcDaoSupport {
         return (OrderDelivery) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(OrderDelivery.class));
     }
 
+    public OrderDelivery getOrderDeliveryByOrderId(int orderid){
+        Map<String,Object> map = new HashMap<>(1);
+        map.put("orderid",orderid);
+        String sql="SELECT DELIVERY_TYPE  deliverytype ,STATUS  status ,DRIVER_USER_ID  driveruserid ,ORDER_ID  orderid ,FROM_ADDR  fromaddr ,DELIVERY_ADDR  deliveryaddr ,ORDER_DELIVERY_ID  orderdeliveryid ,PICKUP_TS  pickupts ,VECHILE_CD  vechilecd  FROM VSV58378.ORDER_DELIVERY  WHERE ORDER_ID = :orderid ";
+        return (OrderDelivery) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(OrderDelivery.class));
+    }
+
     public OrderDelivery addOrderDelivery(OrderDelivery orderdelivery){
         String sql="INSERT INTO VSV58378.ORDER_DELIVERY(DELIVERY_ADDR,DELIVERY_TYPE,DRIVER_USER_ID,FROM_ADDR,ORDER_DELIVERY_ID,ORDER_ID,PICKUP_TS,STATUS,VECHILE_CD) values(:deliveryaddr,:deliverytype,:driveruserid,:fromaddr,:orderdeliveryid,:orderid,:pickupts,:status,:vechilecd)";
         orderdelivery.setOrderdeliveryid(getSequence()+1);

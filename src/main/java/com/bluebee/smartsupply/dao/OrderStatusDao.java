@@ -37,23 +37,23 @@ public class OrderStatusDao extends NamedParameterJdbcDaoSupport {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public List<OrderStatus> getAllOrderStatus(){
-    String sql="SELECT ORDER_STATUS_ID  orderstatusid ,STATUS  status ,ORDER_ID  orderid ,ORDER_STATUS_CD  orderstatuscd ,ORDER_TS  orderts  FROM VSV58378.ORDER_STATUS  WHERE STATUS =  1";
+    String sql="SELECT ORDER_STATUS_ID  orderstatusid ,UPDATE_UID  updateuid ,ORDER_ID  orderid ,ORDER_STATUS_CD  orderstatuscd ,ORDER_TS  orderts  FROM VSV58378.ORDER_STATUS  ";
     return namedParameterJdbcTemplate.query(sql, new BeanPropertyRowMapper(OrderStatus.class));
     }
 
     public OrderStatus getOrderStatusById(int orderstatusid){
         Map<String,Object> map = new HashMap<>(1);
         map.put("orderstatusid",orderstatusid);
-        String sql="SELECT ORDER_STATUS_ID  orderstatusid ,STATUS  status ,ORDER_ID  orderid ,ORDER_STATUS_CD  orderstatuscd ,ORDER_TS  orderts  FROM VSV58378.ORDER_STATUS  WHERE ORDER_STATUS_ID = :orderstatusid ";
+        String sql="SELECT ORDER_STATUS_ID  orderstatusid ,UPDATE_UID  updateuid ,ORDER_ID  orderid ,ORDER_STATUS_CD  orderstatuscd ,ORDER_TS  orderts  FROM VSV58378.ORDER_STATUS  WHERE ORDER_STATUS_ID = :orderstatusid ";
         return (OrderStatus) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(OrderStatus.class));
     }
 
     public OrderStatus addOrderStatus(OrderStatus orderstatus){
-        String sql="INSERT INTO VSV58378.ORDER_STATUS(ORDER_ID,ORDER_STATUS_CD,ORDER_STATUS_ID,ORDER_TS,STATUS) values(:orderid,:orderstatuscd,:orderstatusid,:orderts,:status)";
+        String sql="INSERT INTO VSV58378.ORDER_STATUS(ORDER_ID,ORDER_STATUS_CD,ORDER_STATUS_ID,ORDER_TS,UPDATE_UID) values(:orderid,:orderstatuscd,:orderstatusid,:orderts,:updateuid)";
         orderstatus.setOrderstatusid(getSequence()+1);
         SqlParameterSource sqlpara=new BeanPropertySqlParameterSource(orderstatus);
         namedParameterJdbcTemplate.update(sql,sqlpara);
-        return getOrderStatusById(orderstatus.getOrderstatuscd());
+        return getOrderStatusById(orderstatus.getOrderstatusid());
     }
 
 
@@ -69,7 +69,7 @@ public class OrderStatusDao extends NamedParameterJdbcDaoSupport {
     }
 
     public OrderStatus updateOrderStatus(OrderStatus orderstatus){
-        String sql="UPDATE VSV58378.ORDER_STATUS set STATUS=:status ,ORDER_ID=:orderid ,ORDER_STATUS_CD=:orderstatuscd ,ORDER_TS=:orderts  WHERE ORDER_STATUS_ID = :orderstatusid ";
+        String sql="UPDATE VSV58378.ORDER_STATUS set UPDATE_UID  =:updateuid ,ORDER_ID=:orderid ,ORDER_STATUS_CD=:orderstatuscd ,ORDER_TS=:orderts  WHERE ORDER_STATUS_ID = :orderstatusid ";
         SqlParameterSource sqlpara=new BeanPropertySqlParameterSource(orderstatus);
         namedParameterJdbcTemplate.update(sql,sqlpara);
         return (OrderStatus) getOrderStatusById(orderstatus.getOrderstatuscd());

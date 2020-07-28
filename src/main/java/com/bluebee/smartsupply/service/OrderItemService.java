@@ -34,6 +34,14 @@ public class OrderItemService extends CommonService{
         }
     }
 
+    public   List<OrderItem> getOrderItemByOrderId(int orderid) throws Exception{
+        try {
+            return  orderitemDao.getOrderItemByOrderId(orderid);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new Exception(e);
+        }
+    }
     public OrderItem addOrderItem(OrderItem orderitem) throws Exception{
         try {
             return  orderitemDao.addOrderItem(orderitem);

@@ -51,6 +51,9 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
     @Autowired
     private OrderStatusDao orderStatusDao;
 
+    @Autowired
+    private DeliveryTaskDao deliveryTaskDao;
+
     @PostConstruct
     private void initialize() {
         setDataSource(dataSource);
@@ -59,29 +62,40 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+
+
     public List<Order> getAllOrder(){
-    String sql="SELECT ORDER_BY  orderby ,STATUS  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER  WHERE STATUS =  1";
+    String sql="SELECT  DELIVERY_TASK_ID  taskId,APPUSERCD  driverUserid,OPEN_TASK  openTask,ACCEPT_STAT_CD   acceptstatcd,TOT_ORDER_PRICE totOrderPrice,ORDER_ITM_CNT orderItmcnt,ORDER_STAT_DESC orderStatDesc,CUSTOMERNAME customerName,DELIVERY_ADDRESS deliveryAddress,SHOP_ADDRESS shopAddress,SHOP_NAME shopName, ORDER_BY  orderby ,ORDER_STATUS_CD  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER_SUMMARY ";
     return namedParameterJdbcTemplate.query(sql, new BeanPropertyRowMapper(Order.class));
     }
 
-    public List<Order> getOrderByUserId(int appusercd){
+
+    public List<Order> getOrderByCustomer(int appusercd){
         Map<String,Object> map = new HashMap<>(1);
         map.put("appusercd",appusercd);
-        String sql="SELECT ORDER_BY  orderby ,STATUS  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER  WHERE STATUS =  1 and = ORDER_BY=:appusercd";
-        return namedParameterJdbcTemplate.query(sql, new BeanPropertyRowMapper(Order.class));
+        String sql="SELECT DELIVERY_TYPE deliverytype,PICKUP_TS pickupts,DRIVER_DETAILS driverDetails,TOT_ORDER_PRICE totOrderPrice,ORDER_ITM_CNT orderItmcnt,ORDER_STAT_DESC orderStatDesc,CUSTOMERNAME customerName,DELIVERY_ADDRESS deliveryAddress,SHOP_ADDRESS shopAddress,SHOP_NAME shopName, ORDER_BY  orderby ,ORDER_STATUS_CD  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER_SUMMARY  WHERE ORDER_BY = :appusercd";
+        return namedParameterJdbcTemplate.query(sql,map, new BeanPropertyRowMapper(Order.class));
     }
 
-    public List<Order> getOrderByOwnerUserId(int appusercd){
+    public List<Order> getOrderByShopOwner(int appusercd){
         Map<String,Object> map = new HashMap<>(1);
         map.put("appusercd",appusercd);
-        String sql="SELECT ORDER_BY  orderby ,STATUS  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER  WHERE STATUS =  1 and = ORDER_TO=:appusercd";
-        return namedParameterJdbcTemplate.query(sql, new BeanPropertyRowMapper(Order.class));
+        String sql="SELECT DELIVERY_TYPE deliverytype,PICKUP_TS pickupts,DRIVER_DETAILS driverDetails, TOT_ORDER_PRICE totOrderPrice,ORDER_ITM_CNT orderItmcnt,ORDER_STAT_DESC orderStatDesc,CUSTOMERNAME customerName,DELIVERY_ADDRESS deliveryAddress,SHOP_ADDRESS shopAddress,SHOP_NAME shopName, taskId,  driverUserid,  openTask,   acceptstatcd,ORDER_BY  orderby ,ORDER_STATUS_CD  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER_SUMMARY  WHERE ORDER_TO=:appusercd";
+        return namedParameterJdbcTemplate.query(sql,map ,new BeanPropertyRowMapper(Order.class));
     }
+
+    public List<Order> getOrderByTransporter(int appusercd){
+        Map<String,Object> map = new HashMap<>(1);
+        map.put("appusercd",appusercd);
+        String sql="SELECT DELIVERY_TYPE deliverytype,PICKUP_TS pickupts,DRIVER_DETAILS driverDetails,TOT_ORDER_PRICE totOrderPrice,ORDER_ITM_CNT orderItmcnt,ORDER_STAT_DESC orderStatDesc,CUSTOMERNAME customerName,DELIVERY_ADDRESS deliveryAddress,SHOP_ADDRESS shopAddress,SHOP_NAME shopName, taskId,  driverUserid,  openTask,   acceptstatcd, ORDER_BY  orderby ,ORDER_STATUS_CD  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER_SUMMARY  WHERE driverUserid=:appusercd";
+        return namedParameterJdbcTemplate.query(sql,map, new BeanPropertyRowMapper(Order.class));
+    }
+
 
     public Order getOrderById(int orderid){
         Map<String,Object> map = new HashMap<>(1);
         map.put("orderid",orderid);
-        String sql="SELECT ORDER_BY  orderby ,STATUS  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER  WHERE ORDER_ID = :orderid ";
+        String sql="SELECT  ORDER_BY  orderby ,STATUS  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER  WHERE ORDER_ID = :orderid ";
         return (Order) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(Order.class));
     }
 
@@ -120,6 +134,81 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
         return update==0?null:ORDER;
     }
 
+    public List<Order> processOrderStatus(OrderBundle orderBundle) throws Exception{
+        //1-order placed //2- accepted //3-rejected //4-delivery accepted
+        //5- delivery rejected // 6 - inTransit //7-delivered //8-cancelled
+        AppUser appUser= orderBundle.getAppUser();
+        OrderDelivery orderDelivery =  orderBundle.getOrderDelivery();
+
+        OrderStatus orderStatus     =orderBundle.getOrderStatus();
+        orderStatus.setUpdateuid(appUser.getAppusercd());
+        orderStatus.setOrderts(new Timestamp(System.currentTimeMillis()));
+        orderStatusDao.addOrderStatus(orderStatus);
+
+        Order order=  getOrderById(orderStatus.getOrderid());
+        order.setStatus(orderStatus.getOrderstatuscd());
+        updateOrder(order);
+
+        if(orderStatus.getOrderstatuscd()==2){
+            DeliveryTask deliveryTask=  null;
+            deliveryTask = deliveryTaskDao.getDeliveryTaskByOrderId(orderStatus.getOrderid());
+            if(deliveryTask!=null){
+                deliveryTask.setOrderid(orderStatus.getOrderid());
+                deliveryTask.setAcceptstatcd(0);
+                deliveryTask.setAppusercd(orderDelivery.getDriveruserid());
+                deliveryTask.setStatus(1);
+                deliveryTaskDao.updateDeliveryTask(deliveryTask);
+            }else {
+                deliveryTask = new DeliveryTask();
+                deliveryTask.setOrderid(orderStatus.getOrderid());
+                deliveryTask.setAcceptstatcd(0);
+                deliveryTask.setAppusercd(orderDelivery.getDriveruserid());
+                deliveryTask.setStatus(1);
+                deliveryTaskDao.addDeliveryTask(deliveryTask);
+            }
+
+        }
+        if(orderStatus.getOrderstatuscd()==3){
+
+        }
+
+        if(orderStatus.getOrderstatuscd()==4){
+            DeliveryTask deliveryTask=  deliveryTaskDao.getDeliveryTaskByOrderId(orderStatus.getOrderid());
+            deliveryTask.setAcceptstatcd(1);
+            deliveryTaskDao.updateDeliveryTask(deliveryTask);
+
+         OrderDelivery morDelivery=   orderDeliveryDao.getOrderDeliveryByOrderId(orderStatus.getOrderid());
+            morDelivery.setDriveruserid(appUser.getAppusercd());
+            orderDeliveryDao.updateOrderDelivery(morDelivery);
+        }
+
+        if(orderStatus.getOrderstatuscd()==5){
+            DeliveryTask deliveryTask=  deliveryTaskDao.getDeliveryTaskByOrderId(orderStatus.getOrderid());
+            deliveryTask.setAcceptstatcd(0);
+            deliveryTask.setAppusercd(0);
+            deliveryTaskDao.updateDeliveryTask(deliveryTask);
+
+            OrderDelivery morDelivery=   orderDeliveryDao.getOrderDeliveryByOrderId(orderStatus.getOrderid());
+            morDelivery.setDriveruserid(0);
+            morDelivery.setVechilecd(0);
+            orderDeliveryDao.updateOrderDelivery(morDelivery);
+        }
+
+        if(orderStatus.getOrderstatuscd()==6){
+
+        }
+
+        if(orderStatus.getOrderstatuscd()==7){
+
+        }
+
+        List returnlst=getOrderByCustomer(appUser.getAppusercd());
+        if(appUser.getAppuserrolecd()==2)
+            returnlst=getOrderByShopOwner(appUser.getAppusercd());
+            if(appUser.getAppuserrolecd()==4)
+                returnlst=getOrderByTransporter(appUser.getAppusercd());
+        return  returnlst;
+    }
 
 
     public List<Order> placeOrder(OrderBundle orderBundle) throws Exception{
@@ -175,15 +264,21 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
 
 
             OrderStatus orderStatus=new OrderStatus();
-            orderStatus.setStatus(1);
+            orderStatus.setUpdateuid(appUser.getAppusercd());
             orderStatus.setOrderts(new Timestamp(System.currentTimeMillis()));
             orderStatus.setOrderid(order.getOrderid());
             orderStatus.setOrderstatuscd(1); //1-order placed //2- accepted //3-rejected //4-delivery accepted
             //5- delivery rejected // 6 - inTransit //7-delivered //8-cancelled
             orderStatusDao.addOrderStatus(orderStatus);
 
+            DeliveryTask deliveryTask = new DeliveryTask();
+            deliveryTask.setOrderid(orderStatus.getOrderid());
+            deliveryTask.setAcceptstatcd(0);
+            deliveryTask.setAppusercd(0);
+            deliveryTask.setStatus(1);
+            deliveryTaskDao.addDeliveryTask(deliveryTask);
         });
 
-   return getOrderByUserId(appUser.getAppusercd());
+   return getOrderByCustomer(appUser.getAppusercd());
     }
 }

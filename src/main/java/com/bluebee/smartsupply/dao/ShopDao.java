@@ -63,7 +63,7 @@ public class ShopDao extends NamedParameterJdbcDaoSupport {
     public List<Shop> getShopByUserId(int appusercd) throws Exception{
         Map<String,Object> map = new HashMap<>(1);
         map.put("appusercd",appusercd);
-        String sql="SELECT ADDRESS_3  address3 ,STATUS  status ,OWNER_NAME  ownername ,ADDESS_1  addess1 ,SHOP_NAME  shopname ,ZIPCODE  zipcode ,APP_USER_CD  appusercd ,SHOP_CD  shopcd ,MOBILENO  mobileno ,EMAILID  emailid ,ADDRESS_2  address2  FROM VSV58378.SHOP  WHERE STATUS =  1 and APP_USER_CD  =: appusercd";
+        String sql="SELECT ADDRESS_3  address3 ,STATUS  status ,OWNER_NAME  ownername ,ADDESS_1  addess1 ,SHOP_NAME  shopname ,ZIPCODE  zipcode ,APP_USER_CD  appusercd ,SHOP_CD  shopcd ,MOBILENO  mobileno ,EMAILID  emailid ,ADDRESS_2  address2  FROM VSV58378.SHOP  WHERE STATUS =  1 and APP_USER_CD  =:appusercd";
         return namedParameterJdbcTemplate.query(sql,map, new BeanPropertyRowMapper(Shop.class));
 
     }

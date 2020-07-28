@@ -38,18 +38,27 @@ public class OrderService extends CommonService{
         }
     }
 
-    public List<Order> getOrderByUserId(int appusercd) throws Exception{
+    public List<Order> getOrderByCustomer(int appusercd) throws Exception{
         try {
-            return  orderDao.getOrderByUserId(appusercd);
+            return  orderDao.getOrderByCustomer(appusercd);
         } catch (Exception e) {
             logger.error(e);
             throw new Exception(e);
         }
     }
 
-    public List<Order> getOrderByOwnerUserId(int appusercd) throws Exception{
+    public List<Order> getOrderByShopOwner(int appusercd) throws Exception{
         try {
-            return  orderDao.getOrderByOwnerUserId(appusercd);
+            return  orderDao.getOrderByShopOwner(appusercd);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new Exception(e);
+        }
+    }
+
+    public List<Order> getOrderByTransporter(int appusercd) throws Exception{
+        try {
+            return  orderDao.getOrderByTransporter(appusercd);
         } catch (Exception e) {
             logger.error(e);
             throw new Exception(e);
@@ -60,6 +69,15 @@ public class OrderService extends CommonService{
     public List<Order> placeOrder(OrderBundle orderBundle) throws Exception{
         try {
             return  orderDao.placeOrder(orderBundle);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new Exception(e);
+        }
+    }
+
+    public List<Order> processOrderStatus(OrderBundle orderBundle) throws Exception{
+        try {
+            return  orderDao.processOrderStatus(orderBundle);
         } catch (Exception e) {
             logger.error(e);
             throw new Exception(e);

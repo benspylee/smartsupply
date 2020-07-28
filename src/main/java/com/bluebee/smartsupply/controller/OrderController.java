@@ -50,4 +50,24 @@ public class OrderController  {
         return orderService.placeOrder(orderbundle);
     }
 
+    @RequestMapping(value = "order/accept",method = RequestMethod.POST)
+    public List<Order> acceptOrder(@RequestBody OrderBundle orderbundle)  throws Exception{
+        return orderService.processOrderStatus(orderbundle);
+    }
+
+    @RequestMapping(value = "order/reject",method = RequestMethod.POST)
+    public List<Order> rejectOrder(@RequestBody OrderBundle orderbundle)  throws Exception{
+        return orderService.processOrderStatus(orderbundle);
+    }
+
+    @RequestMapping(value = "order/acceptdelivery",method = RequestMethod.POST)
+    public List<Order> acceptdelivery(@RequestBody OrderBundle orderbundle)  throws Exception{
+        return orderService.processOrderStatus(orderbundle);
+    }
+
+    @RequestMapping(value = "order/rejectdelivery",method = RequestMethod.POST)
+    public List<Order> rejectdelivery(@RequestBody OrderBundle orderbundle)  throws Exception{
+        return orderService.processOrderStatus(orderbundle);
+    }
+
 }

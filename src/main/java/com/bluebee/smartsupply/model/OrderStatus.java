@@ -9,9 +9,17 @@ public class OrderStatus implements Serializable {
     private Integer orderid;
     private Integer orderstatuscd;
     private Timestamp orderts;
-    private Integer status;
-     
-     public Integer getOrderstatusid(){ 
+    private Integer updateuid;
+
+    public Integer getUpdateuid() {
+        return updateuid;
+    }
+
+    public void setUpdateuid(Integer updateuid) {
+        this.updateuid = updateuid;
+    }
+
+    public Integer getOrderstatusid(){
     return this.orderstatusid;
     }
     public void setOrderstatusid(Integer orderstatusid){ 
@@ -35,12 +43,5 @@ public class OrderStatus implements Serializable {
     public void setOrderts(Timestamp orderts){ 
     this.orderts=orderts;
     }
-    public Integer getStatus(){ 
-    return this.status;
-    }
-    public void setStatus(Integer status){ 
-    this.status=status;
-    }
-
 
 }

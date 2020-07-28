@@ -48,6 +48,13 @@ public class VechileDao extends NamedParameterJdbcDaoSupport {
         return (Vechile) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(Vechile.class));
     }
 
+    public List<Vechile> getVechileByUserId(int appusercd) throws Exception{
+        Map<String,Object> map = new HashMap<>(1);
+        map.put("appusercd",appusercd);
+        String sql="SELECT ADDRESS_3  address3 ,STATUS  status ,OWNER_NAME  ownername ,ADDESS_1  addess1 ,VECHILE_REGNO  vechileregno ,ZIPCODE  zipcode ,APP_USER_CD  appusercd ,VECHILE_CD  vechilecd ,MOBILENO  mobileno ,ADDRESS_2  address2  FROM VSV58378.VECHILE  WHERE APP_USER_CD = :appusercd ";
+        return (List<Vechile>) namedParameterJdbcTemplate.query(sql,map,new BeanPropertyRowMapper(Vechile.class));
+    }
+
     public Vechile addVechile(Vechile vechile){
         String sql="INSERT INTO VSV58378.VECHILE(ADDESS_1,ADDRESS_2,ADDRESS_3,APP_USER_CD,MOBILENO,OWNER_NAME,STATUS,VECHILE_CD,VECHILE_REGNO,ZIPCODE) values(:addess1,:address2,:address3,:appusercd,:mobileno,:ownername,:status,:vechilecd,:vechileregno,:zipcode)";
         vechile.setVechilecd(getSequence()+1);

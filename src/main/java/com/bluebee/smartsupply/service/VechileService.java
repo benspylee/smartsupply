@@ -34,6 +34,15 @@ public class VechileService extends CommonService{
         }
     }
 
+    public List<Vechile> getVechileByUserId(int appusercd) throws Exception{
+        try {
+            return  vechileDao.getVechileByUserId(appusercd);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new Exception(e);
+        }
+    }
+
     public Vechile addVechile(Vechile vechile) throws Exception{
         try {
             return  vechileDao.addVechile(vechile);
@@ -42,6 +51,8 @@ public class VechileService extends CommonService{
             throw new Exception(e);
         }
     }
+
+
 
     public Vechile updateVechile(Vechile vechile) throws Exception{
         try {

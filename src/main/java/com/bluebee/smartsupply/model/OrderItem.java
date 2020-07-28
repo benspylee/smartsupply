@@ -12,6 +12,24 @@ public class OrderItem implements Serializable {
     private Integer unitcode;
     private Integer status;
     private Integer shopcode;
+    private String itemname;
+    private double price;
+
+    public String getItemname() {
+        return itemname;
+    }
+
+    public void setItemname(String itemname) {
+        this.itemname = itemname;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
 
     public Integer getShopcode() {
         return shopcode;

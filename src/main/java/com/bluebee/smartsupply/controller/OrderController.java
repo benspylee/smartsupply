@@ -4,9 +4,14 @@ import com.bluebee.smartsupply.model.Order;
 import com.bluebee.smartsupply.model.OrderBundle;
 import com.bluebee.smartsupply.model.Result;
 import com.bluebee.smartsupply.service.OrderService;
+import com.ibm.cloud.objectstorage.services.s3.model.S3Object;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URL;
 import java.util.List;
 
 @RestController
@@ -69,5 +74,16 @@ public class OrderController  {
     public List<Order> rejectdelivery(@RequestBody OrderBundle orderbundle)  throws Exception{
         return orderService.processOrderStatus(orderbundle);
     }
+    @RequestMapping(value = "order/generateinvoice/{orderid}",method = RequestMethod.GET)
+    public void getDownloadURL(HttpServletRequest request, HttpServletResponse response,
+                               @PathVariable("orderid")int orderid) throws Exception{
+     S3Object s3object = orderService.getDownloadObject(orderid);
 
+        response.setContentType("application/octet-stream");
+       // s3object.getObjectMetadata().
+        response.setHeader("Content-Disposition", String.format("inline; filename=\"" + s3object.getKey() + "\".pdf"));
+        response.setContentLength((int)  s3object.getObjectMetadata().getContentLength());
+        FileCopyUtils.copy(s3object.getObjectContent().getDelegateStream(), response.getOutputStream());
+
+    }
 }

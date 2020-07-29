@@ -3,12 +3,14 @@ package com.bluebee.smartsupply.service;
 import com.bluebee.smartsupply.dao.OrderDao;
 import com.bluebee.smartsupply.model.Order;
 import com.bluebee.smartsupply.model.OrderBundle;
+import com.ibm.cloud.objectstorage.services.s3.model.S3Object;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,14 @@ public class OrderService extends CommonService{
         }
     }
 
+    public S3Object getDownloadObject(int orderid) throws Exception{
+        try {
+            return  orderDao.getDownloadObject(orderid);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new Exception(e);
+        }
+    }
 
     public List<Order> placeOrder(OrderBundle orderBundle) throws Exception{
         try {

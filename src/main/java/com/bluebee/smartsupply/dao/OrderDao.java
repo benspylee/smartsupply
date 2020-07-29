@@ -1,8 +1,10 @@
 package com.bluebee.smartsupply.dao;
 
 
+import com.bluebee.smartsupply.client.GenerateInvoice;
+import com.bluebee.smartsupply.client.PushNotificationClient;
 import com.bluebee.smartsupply.model.*;
-import org.apache.commons.dbcp2.BasicDataSource;
+import com.ibm.cloud.objectstorage.services.s3.model.S3Object;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.dao.DataAccessException;
@@ -11,18 +13,14 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.net.URL;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Repository
 @Transactional(rollbackFor = Exception.class)
@@ -63,6 +61,14 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
+    @Autowired
+    PushNotificationClient pushNotificationClient;
+
+    @Autowired
+    OrderFileDao orderFileDao;
+
+    @Autowired
+    GenerateInvoice generateInvoice;
 
     public List<Order> getAllOrder(){
     String sql="SELECT  DELIVERY_TASK_ID  taskId,APPUSERCD  driverUserid,OPEN_TASK  openTask,ACCEPT_STAT_CD   acceptstatcd,TOT_ORDER_PRICE totOrderPrice,ORDER_ITM_CNT orderItmcnt,ORDER_STAT_DESC orderStatDesc,CUSTOMERNAME customerName,DELIVERY_ADDRESS deliveryAddress,SHOP_ADDRESS shopAddress,SHOP_NAME shopName, ORDER_BY  orderby ,ORDER_STATUS_CD  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER_SUMMARY ";
@@ -91,6 +97,12 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
         return namedParameterJdbcTemplate.query(sql,map, new BeanPropertyRowMapper(Order.class));
     }
 
+    public Order getOrderSummaryById(int orderid){
+        Map<String,Object> map = new HashMap<>(1);
+        map.put("orderid",orderid);
+        String sql="SELECT DELIVERY_TYPE deliverytype,PICKUP_TS pickupts,DRIVER_DETAILS driverDetails,TOT_ORDER_PRICE totOrderPrice,ORDER_ITM_CNT orderItmcnt,ORDER_STAT_DESC orderStatDesc,CUSTOMERNAME customerName,DELIVERY_ADDRESS deliveryAddress,SHOP_ADDRESS shopAddress,SHOP_NAME shopName, taskId,  driverUserid,  openTask,   acceptstatcd, ORDER_BY  orderby ,ORDER_STATUS_CD  status ,ORDER_ID  orderid ,ORDER_TO  orderto ,ORDER_DT  orderdt ,SHOP_CD  shopcd  FROM VSV58378.ORDER_SUMMARY  WHERE ORDER_ID = :orderid ";
+        return (Order) namedParameterJdbcTemplate.queryForObject(sql,map,new BeanPropertyRowMapper(Order.class));
+    }
 
     public Order getOrderById(int orderid){
         Map<String,Object> map = new HashMap<>(1);
@@ -135,6 +147,8 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
     }
 
     public List<Order> processOrderStatus(OrderBundle orderBundle) throws Exception{
+
+        generateInvoice(4);
         //1-order placed //2- accepted //3-rejected //4-delivery accepted
         //5- delivery rejected // 6 - inTransit //7-delivered //8-cancelled
         AppUser appUser= orderBundle.getAppUser();
@@ -166,6 +180,12 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
                 deliveryTask.setStatus(1);
                 deliveryTaskDao.addDeliveryTask(deliveryTask);
             }
+
+            Order orderprocess = getOrderSummaryById(4);
+            String address =   orderprocess.getDeliveryAddress().replaceAll("@@","\n ,");
+            String res="{\"appusercd\":\""+appUser.getAppusercd()+"\",\"deliveryaddress\":\""+address+"\"}";
+            String base = Base64.getEncoder().encodeToString(res.getBytes());
+            pushNotificationClient.pushNotification(base);
 
         }
         if(orderStatus.getOrderstatuscd()==3){
@@ -210,6 +230,21 @@ public class OrderDao extends NamedParameterJdbcDaoSupport {
         return  returnlst;
     }
 
+    private OrderFile generateInvoice(int orderid) {
+        Order order =  getOrderSummaryById(orderid);
+        List orderItemList = orderItemDao.getOrderItemByOrderId(orderid);
+        Map input=new HashMap();
+        input.put("deliveryaddress",order.getDeliveryAddress());
+        input.put("shopaddress",order.getShopAddress());
+        input.put("orderitems",orderItemList);
+        input.put("order",order);
+       return generateInvoice.generate(input);
+    }
+
+    public S3Object getDownloadObject(int orderid){
+       OrderFile orderFile= generateInvoice(orderid);
+        return generateInvoice.getDownloadObject(orderid);
+    }
 
     public List<Order> placeOrder(OrderBundle orderBundle) throws Exception{
        List<OrderItem> orderItems = orderBundle.getOrderItems();
